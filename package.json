@@ -1,6 +1,6 @@
 {
   "name": "request-promise-cache",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "request promise with cache",
   "main": "request-promise-cache.js",
   "scripts": {
@@ -10,8 +10,16 @@
     "type": "git",
     "url": "git+https://github.com/akhoury/request-promise-cache.git"
   },
-  "author": "",
+  "author": "https://github.com/akhoury",
+  "keywords": [
+      "request",
+      "promise",
+      "cache"
+  ],
   "license": "MIT",
+  "engines": {
+    "node" : ">=0.12"
+  },
   "bugs": {
     "url": "https://github.com/akhoury/request-promise-cache/issues"
   },
