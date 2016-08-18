@@ -1,0 +1,27 @@
+{
+  "name": "request-promise-cache",
+  "version": "1.0.0",
+  "description": "request promise with cache",
+  "main": "request-promise-cache.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha tests/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akhoury/request-promise-cache.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akhoury/request-promise-cache/issues"
+  },
+  "homepage": "https://github.com/akhoury/request-promise-cache#readme",
+  "dependencies": {
+    "nano-cache": "^1.0.0",
+    "request": "^2.74.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2"
+  }
+}
