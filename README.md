@@ -1,6 +1,14 @@
 # request-promise-cache
 Request promise with cache
 
+## Dependencies
+
+* [request](https://github.com/request/request)
+* [nano-cache](https://github.com/akhoury/nano-cache) 
+
+Uses the native javascript [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) introduced in Node.js 0.12+
+
+
 ## Usage
 
 ```javascript
