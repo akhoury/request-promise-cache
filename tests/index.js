@@ -38,8 +38,6 @@ var promiseTypes = [
     }
 ];
 
-var pipeline = require('when/pipeline');
-
 describe(pkg.name + '@' + pkg.version + ' tests', function (done) {
     this.timeout(10000)
 
