@@ -6,7 +6,25 @@ Request promise with cache
 * [request](https://github.com/request/request)
 * [nano-cache](https://github.com/akhoury/nano-cache) 
 
-Uses the native javascript [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) introduced in Node.js 0.12+
+### Other promise libraries?
+
+By default, this module sses the native javascript [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) introduced in Node.js 0.12+, however you can use it with others, by passing your own `Promise` constructor
+
+
+```javascript
+
+// if you want to use bluebird for example
+// just do this once, somewhere in your app, ideally whatever file loads first, i.e. app.js
+var request = require('request-promise-cache').use( require('bluebird').Promise )
+
+// you dont have to do it again in the same app's other files
+```
+
+#### Tested with 
+* [bluebird](https://github.com/petkaantonov/bluebird)
+* [when](https://github.com/cujojs/when)
+* [q](https://github.com/kriskowal/q)
+* and native [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
 
 ## Usage
