@@ -26,6 +26,7 @@ var request = require('request-promise-cache').use( require('bluebird').Promise 
 * [q](https://github.com/kriskowal/q)
 * and native [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
+if you want me to test another one, just make a pull request to the [test source](https://github.com/akhoury/request-promise-cache/blob/master/tests/index.js)
 
 ## Usage
 
