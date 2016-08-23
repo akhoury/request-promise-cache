@@ -38,7 +38,13 @@ request({
     url: url,
     cacheKey: url,
     cacheTTL: 3600,
-    cacheLimit: 12
+    cacheLimit: 12,
+    
+    /* bust the cache and get fresh results
+    qs: {
+        _: +new Date()
+    }
+    */   
   })
   .then(function(ret) {
     console.log(ret); // {body: body, response: response, error: error}
@@ -56,6 +62,8 @@ All of the original [request library's options](https://github.com/request/reque
 * `cacheTTL: milliseconds`, automatically expire a cache entry after Y number of milliseconds, if used with `cacheLimit`, whichever comes first will take precedence
 * `cacheLimit: integer`, automatically expire a cache entry after X amount of reads, if used with `cacheTTL`, whichever comes first will take precedence
 * `fresh: true/false`, delete the cached entry and get a fresh one
+* `qs._: 123456789 /* anything truthy */`, same as `fresh` however, this query param will be sent over to the remote server, so it will, most likely, bypass the cache on the other end if there is one
+
 * `_: 123456789 /* anything truthy */`, same as `fresh`, _(for the jquery users)_
 
 ## Asynchronous calls with the same `cacheKey`
