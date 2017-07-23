@@ -56,7 +56,10 @@ function testPromiseLib (type) {
             this.timeout(5000);
 
             var goodTestUrl = 'https://google.com';
-            var badTestUrl = 'https://aziz.khoury'; // I will come back and fix this if and when I purchase that domain
+
+            // todo:
+            // come back and fix this if and when I purchase that domain
+            var badTestUrl = 'https://aziz.khoury';
 
             beforeEach(function (done) {
                 request.cache.clear();
@@ -72,35 +75,40 @@ function testPromiseLib (type) {
 
                 request({url: goodTestUrl, cacheKey: goodTestUrl})
                     .then(function (ret) {
-                        // ref to the cached ret object
-                        // set some value on it, to test in in the second request
-                        ret.__cached = true;
-
                         start2 = +new Date();
                         diff1 = start2 - start1;
 
                         return request({url: goodTestUrl, cacheKey: goodTestUrl});
                     })
                     .then(function (ret) {
-                        assert.equal(ret.__cached, true, '__cached is from the previous request');
-
+                        assert.equal(ret.__fromCache, true, '__fromCache is from the previous request');
                         diff2 = (+new Date()) - start2;
                         assert.approximately(0, diff2, 10, 'within 10 millis');
-
                         done();
                     });
             });
 
 
+            it('should fetch ' + goodTestUrl + ' twice in a row, but the first one with a very short ttl, so the second one should not resolve from cache but re-fetch again', function (done) {
+                request({url: goodTestUrl, cacheKey: goodTestUrl, cacheTTL: 1})
+                    .then(function (ret) {
+                        return request({url: goodTestUrl, cacheKey: goodTestUrl});
+                    })
+                    .then(function (ret) {
+                        assert.notEqual(ret.__fromCache, true, '__fromCache should be here, this is a fresh fetch');
+                        done();
+                    });
+            });
+
+
+
             it('should fetch ' + goodTestUrl + ' twice at the same time, the second one should resolve when the first does', function (done) {
                 var start1 = +new Date();
                 var start2 = +new Date();
-                var diff1;
-                var diff2;
 
                 var p1 = request({url: goodTestUrl, cacheKey: goodTestUrl}).then(function () {
                     return (+new Date()) - start1;
-                })
+                });
 
                 var p2 = request({url: goodTestUrl, cacheKey: goodTestUrl}).then(function () {
                     return (+new Date()) - start2;

@@ -4,7 +4,6 @@
 
 var request = require('request');
 var cache = require('nano-cache');
-var LOADING_CACHE_KEY_SUFFIX = '____loading____';
 var P = global.Promise;
 
 if (! P) {
@@ -16,8 +15,16 @@ if (! P) {
 
 function promisifyAndCachifyRequest (r, options) {
     r = r || request.defaults(options || {});
+    r._loading = {};
+    r._cache = new cache();
+    r._cache.on('del', function (key) {
+        delete r._loading[key];
+    });
+    r._cache.on('clear', function () {
+        r._loading = {};
+    });
 
-    return function(params) {
+    var requestPromiseCache = function(params) {
         var promise = new P(function(resolve, reject) {
 
             var fresh = params.fresh;
@@ -30,22 +37,20 @@ function promisifyAndCachifyRequest (r, options) {
             delete params.cacheTTL;
             delete params.cacheLimit;
 
-
             if ((fresh || (params.qs && params.qs._)) && cacheKey) {
-                cache.del(cacheKey);
-                cache.del(cacheKey + LOADING_CACHE_KEY_SUFFIX);
+                r._cache.del(cacheKey);
             }
 
             if(cacheKey) {
-                var hit = cache.get(cacheKey);
+                var hit = r._cache.get(cacheKey);
                 if (hit) {
+                    hit.__fromCache = true;
                     resolve(hit);
                     return;
                 }
 
-                var loading = cache.get(cacheKey + LOADING_CACHE_KEY_SUFFIX);
-                if (loading) {
-                    loading.promise.done ? loading.promise.done(resolve, reject) : loading.promise.then(resolve, reject);
+                if (r._loading[cacheKey]) {
+                    r._loading[cacheKey].promise.done ? r._loading[cacheKey].promise.done(resolve, reject) : r._loading[cacheKey].promise.then(resolve, reject);
                     return;
                 }
 
@@ -61,7 +66,8 @@ function promisifyAndCachifyRequest (r, options) {
                         rjct(ret);
                     };
                 });
-                cache.set(cacheKey + LOADING_CACHE_KEY_SUFFIX, {promise: newPromise}, {ttl: cacheTTL, limit: cacheLimit});
+
+                r._loading[cacheKey] = {promise: newPromise};
             }
 
             r(params, function(error, response, body) {
@@ -70,16 +76,18 @@ function promisifyAndCachifyRequest (r, options) {
                 if (error || response.statusCode != 200) {
                     reject(ret);
                 } else {
-                    cacheKey && cache.set(cacheKey, ret, {ttl: cacheTTL, limit: cacheLimit});
+                    cacheKey && r._cache.set(cacheKey, ret, {ttl: cacheTTL, limit: cacheLimit});
                     resolve(ret);
                 }
-
-                cacheKey && cache.del(cacheKey + LOADING_CACHE_KEY_SUFFIX);
+                delete r._loading[cacheKey];
             });
         });
 
         return promise;
     };
+    
+    requestPromiseCache.cache = r._cache;
+    return requestPromiseCache;
 }
 
 function defaults (defaults) {
@@ -94,13 +102,10 @@ requestPromiseCache.original = request;
 // same as the original.defaults, but promisified
 requestPromiseCache.defaults = defaults;
 
-// ref to the nano cache instance
-requestPromiseCache.cache = cache;
-
 requestPromiseCache.use = function (CustomPromise) {
     P = CustomPromise;
     return requestPromiseCache;
-}
+};
 
 module.exports = requestPromiseCache;
 
