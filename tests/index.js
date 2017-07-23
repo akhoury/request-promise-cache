@@ -39,7 +39,7 @@ var promiseTypes = [
 ];
 
 describe(pkg.name + '@' + pkg.version + ' tests', function (done) {
-    this.timeout(10000)
+    this.timeout(10000);
 
     Promise.all(promiseTypes.map(function(type) {
         return testPromiseLib(type);
@@ -55,7 +55,7 @@ function testPromiseLib (type) {
         describe('Testing using `' + type.name + '`', function () {
             this.timeout(5000);
 
-            var goodTestUrl = 'https://google.com';
+            var goodTestUrl = 'https://httpbin.org';
 
             // todo:
             // come back and fix this if and when I purchase that domain
@@ -89,9 +89,10 @@ function testPromiseLib (type) {
             });
 
 
-            it('should fetch ' + goodTestUrl + ' twice in a row, but the first one with a very short ttl, so the second one should not resolve from cache but re-fetch again', function (done) {
+            it('should fetch ' + goodTestUrl + ' twice in a row, then access cache and del the key, so the second one should not resolve from cache but re-fetch again', function (done) {
                 request({url: goodTestUrl, cacheKey: goodTestUrl, cacheTTL: 1})
                     .then(function (ret) {
+                        request.cache.del(goodTestUrl);
                         return request({url: goodTestUrl, cacheKey: goodTestUrl});
                     })
                     .then(function (ret) {
@@ -100,7 +101,16 @@ function testPromiseLib (type) {
                     });
             });
 
-
+            it('should POST to ' + goodTestUrl + '/post twice in a row, so the second one should not resolve from cache but re-post again', function (done) {
+                request({method: 'POST', url: goodTestUrl + '/post', cacheKey: goodTestUrl})
+                    .then(function (ret) {
+                        return request({method: 'POST', url: goodTestUrl + '/post', cacheKey: goodTestUrl});
+                    })
+                    .then(function (ret) {
+                        assert.notEqual(ret.__fromCache, true, '__fromCache should be here, this is a fresh fetch');
+                        done();
+                    });
+            });
 
             it('should fetch ' + goodTestUrl + ' twice at the same time, the second one should resolve when the first does', function (done) {
                 var start1 = +new Date();

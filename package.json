@@ -1,6 +1,6 @@
 {
     "name": "request-promise-cache",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "request promise with cache",
     "main": "request-promise-cache.js",
     "scripts": {

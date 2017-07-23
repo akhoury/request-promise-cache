@@ -41,7 +41,9 @@ function promisifyAndCachifyRequest (r, options) {
                 r._cache.del(cacheKey);
             }
 
-            if(cacheKey) {
+            var get = (params.method || 'get').toLowerCase() == 'get';
+
+            if(get && cacheKey) {
                 var hit = r._cache.get(cacheKey);
                 if (hit) {
                     hit.__fromCache = true;
@@ -85,7 +87,8 @@ function promisifyAndCachifyRequest (r, options) {
 
         return promise;
     };
-    
+
+    requestPromiseCache.loading = r._loading;
     requestPromiseCache.cache = r._cache;
     return requestPromiseCache;
 }
