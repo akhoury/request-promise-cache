@@ -88,6 +88,27 @@ function testPromiseLib (type) {
                     });
             });
 
+            it('should fetch ' + goodTestUrl + ' twice in a row, without a cacheKey but with a cacheTTL, the second one should resolve quickly from cache', function (done) {
+                var start1 = +new Date();
+                var start2;
+                var diff1;
+                var diff2;
+
+                request({url: goodTestUrl, cacheTTL: 3600})
+                    .then(function (ret) {
+                        start2 = +new Date();
+                        diff1 = start2 - start1;
+
+                        return request({url: goodTestUrl, cacheTTL: 3600});
+                    })
+                    .then(function (ret) {
+                        assert.equal(ret.__fromCache, true, '__fromCache is from the previous request');
+                        diff2 = (+new Date()) - start2;
+                        assert.approximately(0, diff2, 10, 'within 10 millis');
+                        done();
+                    });
+            });
+
 
             it('should fetch ' + goodTestUrl + ' twice in a row, then access cache and del the key, so the second one should not resolve from cache but re-fetch again', function (done) {
                 request({url: goodTestUrl, cacheKey: goodTestUrl, cacheTTL: 1})
