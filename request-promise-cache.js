@@ -13,6 +13,12 @@ if (! P) {
     )
 }
 
+function hashCode (str) {
+    // https://stackoverflow.com/a/34842797/493756
+    return str.split('')
+        .reduce(function (prevHash, currVal) { return ((prevHash << 5) - prevHash) + currVal.charCodeAt(0) }, 0);
+}
+
 function promisifyAndCachifyRequest (r, options) {
     r = r || request.defaults(options || {});
     r._loading = {};
@@ -32,6 +38,10 @@ function promisifyAndCachifyRequest (r, options) {
             var cacheTTL = params.cacheTTL;
             var cacheLimit = params.cacheLimit;
 
+            if ((cacheTTL || cacheLimit) && !cacheKey) {
+                cacheKey = hashCode(JSON.stringify(params));
+            }
+
             delete params.fresh;
             delete params.cacheKey;
             delete params.cacheTTL;
@@ -41,7 +51,7 @@ function promisifyAndCachifyRequest (r, options) {
                 r._cache.del(cacheKey);
             }
 
-            var get = (params.method || 'get').toLowerCase() == 'get';
+            var get = (params.method || 'get').toLowerCase() === 'get';
 
             if(get && cacheKey) {
                 var hit = r._cache.get(cacheKey);
