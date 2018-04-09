@@ -165,6 +165,39 @@ function testPromiseLib (type) {
                     });
             });
 
+            it('should not generate unhandled promise rejections', function (done) {
+                var unhandledRejectionsNumber = 0;
+
+                function unhandledRejectionHandler() {
+                    unhandledRejectionsNumber++;
+                }
+
+                process.on('unhandledRejection', unhandledRejectionHandler);
+
+                var params = {
+                    url: badTestUrl,
+                    method: 'get',
+                    cacheKey: badTestUrl,
+                    cacheTTL: 10000
+                };
+
+                var p1 = request(params);
+                var p2 = request(params);
+
+                Promise.all([p1, p2])
+                    .catch(function noop() {})
+
+                setTimeout(function () {
+                    process.removeListener('unhandledRejection', unhandledRejectionHandler);
+
+                    try {
+                        assert.equal(unhandledRejectionsNumber, 0, 'The number of unhandled promise rejections');
+                        done();
+                    } catch (err) {
+                        done(err);
+                    }
+                }, 100)
+            });
         });
     });
 }
