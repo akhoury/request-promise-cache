@@ -31,7 +31,8 @@ function promisifyAndCachifyRequest (r, options) {
     });
 
     var requestPromiseCache = function(params) {
-        var promise = new P(function(resolve, reject) {
+        var cacheEntry = {}
+        var promise = cacheEntry.promise = new P(function(resolve, reject) {
 
             var fresh = params.fresh;
             var cacheKey = params.cacheKey;
@@ -66,20 +67,7 @@ function promisifyAndCachifyRequest (r, options) {
                     return;
                 }
 
-                var previousResolve = resolve;
-                var previousReject = reject;
-                var newPromise = new P(function(rslv, rjct) {
-                    resolve = function(ret) {
-                        previousResolve(ret);
-                        rslv(ret);
-                    };
-                    reject = function(ret) {
-                        previousReject(ret);
-                        rjct(ret);
-                    };
-                });
-
-                r._loading[cacheKey] = {promise: newPromise};
+                r._loading[cacheKey] = cacheEntry;
             }
 
             r(params, function(error, response, body) {
