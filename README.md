@@ -1,15 +1,12 @@
 # request-promise-cache
 Request promise with cache
 
-## Dependencies
-
-* [request](https://github.com/request/request)
-* [nano-cache](https://github.com/akhoury/nano-cache) 
+### 2.0.0 Breaks backward compatibility
+The `resolve`d first argument is no longer `{response, body, ?error}` but just the `body`. But, you can pass in `resolveWithFullResponse=true` to the `request({..params})` to get the full `response` object instead of the body.
 
 ### Other promise libraries?
 
 By default, this module uses the native javascript [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) introduced in Node.js 0.12+, however you can use it with others, by passing your own `Promise` constructor
-
 
 ```javascript
 
@@ -20,7 +17,7 @@ var request = require('request-promise-cache').use( require('bluebird').Promise 
 // you dont have to do it again in the same app's other files
 ```
 
-#### Tested with 
+#### Tested with
 * [bluebird](https://github.com/petkaantonov/bluebird)
 * [when](https://github.com/cujojs/when)
 * [q](https://github.com/kriskowal/q)
@@ -39,18 +36,19 @@ request({
     cacheKey: url,
     cacheTTL: 3600,
     cacheLimit: 12,
-    
     /* bust the cache and get fresh results
     qs: {
         _: +new Date()
-    }
-    */   
+    },
+    */
+    // like https://github.com/request/request-promise#get-the-full-response-instead-of-just-the-body
+    resolveWithFullResponse: false,
   })
-  .then(function(ret) {
-    console.log(ret); // {body: body, response: response, error: error}
+  .then(function(body) {
+    // ...
   })
-  .catch(function(ret) {
-    console.error(ret); // {response: response, error: error}
+  .catch(function(error) {
+    // ...
   });
 ```
 
@@ -63,6 +61,7 @@ All of the original [request library's options](https://github.com/request/reque
 * `cacheLimit: integer`, automatically expire a cache entry after X amount of reads, if used with `cacheTTL`, whichever comes first will take precedence
 * `fresh: true/false`, delete the cached entry and get a fresh one
 * `qs._: 123456789 /* anything truthy */`, same as `fresh` however, this query param will be sent over to the remote server, so it will, most likely, bypass the cache on the other end if there is one
+* `resolveWithFullResponse: true/false`, copied from [request-promise](https://github.com/request/request-promise#get-the-full-response-instead-of-just-the-body) options, defaults to `false`, basically instead of resolving with the `body`, it uses the `response`, which then you need to do `response.body` to access the `body`
 
 ## Asynchronous calls with the same `cacheKey`
 

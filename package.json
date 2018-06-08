@@ -1,6 +1,6 @@
 {
     "name": "request-promise-cache",
-    "version": "1.1.1",
+    "version": "2.0.0",
     "description": "request promise with cache",
     "main": "request-promise-cache.js",
     "scripts": {
@@ -29,13 +29,13 @@
     "homepage": "https://github.com/akhoury/request-promise-cache#readme",
     "dependencies": {
         "nano-cache": "^1.1.2",
-        "request": "^2.74.0"
+        "request": "^2.87.0"
     },
     "devDependencies": {
-        "bluebird": "^3.4.1",
+        "bluebird": "^3.5.1",
         "chai": "^3.5.0",
-        "mocha": "^3.0.2",
-        "q": "^1.4.1",
-        "when": "^3.7.7"
+        "mocha": "^3.5.3",
+        "q": "^1.5.1",
+        "when": "^3.7.8"
     }
 }

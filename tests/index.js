@@ -67,18 +67,34 @@ function testPromiseLib (type) {
                 done();
             });
 
+            it('should fetch ' + goodTestUrl + '', function (done) {
+                request({url: goodTestUrl, cacheKey: goodTestUrl})
+                    .then(function (ret) {
+                        assert.equal(/<html/.test(ret), true);
+                        done();
+                    });
+            });
+
+            it('should fetch ' + goodTestUrl + ' with resolveWithFullResponse=true', function (done) {
+                request({url: goodTestUrl, cacheKey: goodTestUrl, resolveWithFullResponse: true})
+                    .then(function (ret) {
+                        assert.equal(/<html/.test(ret.body), true);
+                        done();
+                    });
+            });
+
             it('should fetch ' + goodTestUrl + ' twice in a row, the second one should resolve quickly from cache', function (done) {
                 var start1 = +new Date();
                 var start2;
                 var diff1;
                 var diff2;
 
-                request({url: goodTestUrl, cacheKey: goodTestUrl})
+                request({url: goodTestUrl, cacheKey: goodTestUrl, resolveWithFullResponse: true})
                     .then(function (ret) {
                         start2 = +new Date();
                         diff1 = start2 - start1;
 
-                        return request({url: goodTestUrl, cacheKey: goodTestUrl});
+                        return request({url: goodTestUrl, cacheKey: goodTestUrl, resolveWithFullResponse: true});
                     })
                     .then(function (ret) {
                         assert.equal(ret.__fromCache, true, '__fromCache is from the previous request');
@@ -94,12 +110,12 @@ function testPromiseLib (type) {
                 var diff1;
                 var diff2;
 
-                request({url: goodTestUrl, cacheTTL: 3600})
+                request({url: goodTestUrl, cacheTTL: 3600, resolveWithFullResponse: true})
                     .then(function (ret) {
                         start2 = +new Date();
                         diff1 = start2 - start1;
 
-                        return request({url: goodTestUrl, cacheTTL: 3600});
+                        return request({url: goodTestUrl, cacheTTL: 3600, resolveWithFullResponse: true});
                     })
                     .then(function (ret) {
                         assert.equal(ret.__fromCache, true, '__fromCache is from the previous request');
@@ -111,10 +127,10 @@ function testPromiseLib (type) {
 
 
             it('should fetch ' + goodTestUrl + ' twice in a row, then access cache and del the key, so the second one should not resolve from cache but re-fetch again', function (done) {
-                request({url: goodTestUrl, cacheKey: goodTestUrl, cacheTTL: 1})
+                request({url: goodTestUrl, cacheKey: goodTestUrl, cacheTTL: 1, resolveWithFullResponse: true})
                     .then(function (ret) {
                         request.cache.del(goodTestUrl);
-                        return request({url: goodTestUrl, cacheKey: goodTestUrl});
+                        return request({url: goodTestUrl, cacheKey: goodTestUrl, resolveWithFullResponse: true});
                     })
                     .then(function (ret) {
                         assert.notEqual(ret.__fromCache, true, '__fromCache should be here, this is a fresh fetch');
@@ -123,9 +139,9 @@ function testPromiseLib (type) {
             });
 
             it('should POST to ' + goodTestUrl + '/post twice in a row, so the second one should not resolve from cache but re-post again', function (done) {
-                request({method: 'POST', url: goodTestUrl + '/post', cacheKey: goodTestUrl})
+                request({method: 'POST', url: goodTestUrl + '/post', cacheKey: goodTestUrl, resolveWithFullResponse: true})
                     .then(function (ret) {
-                        return request({method: 'POST', url: goodTestUrl + '/post', cacheKey: goodTestUrl});
+                        return request({method: 'POST', url: goodTestUrl + '/post', cacheKey: goodTestUrl, resolveWithFullResponse: true});
                     })
                     .then(function (ret) {
                         assert.notEqual(ret.__fromCache, true, '__fromCache should be here, this is a fresh fetch');
@@ -185,7 +201,7 @@ function testPromiseLib (type) {
                 var p2 = request(params);
 
                 Promise.all([p1, p2])
-                    .catch(function noop() {})
+                    .catch(function noop() {});
 
                 setTimeout(function () {
                     process.removeListener('unhandledRejection', unhandledRejectionHandler);

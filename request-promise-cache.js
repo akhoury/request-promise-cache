@@ -31,7 +31,7 @@ function promisifyAndCachifyRequest (r, options) {
     });
 
     var requestPromiseCache = function(params) {
-        var cacheEntry = {}
+        var cacheEntry = {};
         var promise = cacheEntry.promise = new P(function(resolve, reject) {
 
             var fresh = params.fresh;
@@ -57,6 +57,10 @@ function promisifyAndCachifyRequest (r, options) {
             if(get && cacheKey) {
                 var hit = r._cache.get(cacheKey);
                 if (hit) {
+                    // only works if resolveWithFullResponse=true
+                    // since body would be a primitive string and can't add property to it.
+                    // and I don't want to use `new String(body)`
+                    // anyways, this is not documented and I only use it for tests
                     hit.__fromCache = true;
                     resolve(hit);
                     return;
@@ -70,11 +74,14 @@ function promisifyAndCachifyRequest (r, options) {
                 r._loading[cacheKey] = cacheEntry;
             }
 
+            var resolveWithFullResponse = params.resolveWithFullResponse;
+            delete params.resolveWithFullResponse;
+
             r(params, function(error, response, body) {
-                var ret = {error: error, response: response, body: body};
+                var ret = resolveWithFullResponse ? response : body;
 
                 if (error || response.statusCode != 200) {
-                    reject(ret);
+                    reject(error || response);
                 } else {
                     cacheKey && r._cache.set(cacheKey, ret, {ttl: cacheTTL, limit: cacheLimit});
                     resolve(ret);
