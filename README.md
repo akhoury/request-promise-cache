@@ -30,6 +30,11 @@ if you want me to test another one, just add it and make a pull request to the [
 ```javascript
 var request = require('request-promise-cache');
 
+var query = { recordId: 27 };
+
+var queryString = Object.keys(query).sort().map(function (k) { return k + '=' query[k] }).join('&');
+var cacheKey = url + '?' + queryString;
+
 var url = 'http://google.com';
 request({
     url: url,
@@ -37,7 +42,7 @@ request({
     cacheTTL: 3600,
     cacheLimit: 12,
     /* bust the cache and get fresh results
-    qs: {
+    qs: query || {
         _: +new Date()
     },
     */
