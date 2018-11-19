@@ -80,7 +80,7 @@ function promisifyAndCachifyRequest (r, options) {
             r(params, function(error, response, body) {
                 var ret = resolveWithFullResponse ? response : body;
 
-                if (error || response.statusCode != 200) {
+                if (error || response.statusCode < 200 || response.statusCode > 299) {
                     reject(error || response);
                 } else {
                     cacheKey && r._cache.set(cacheKey, ret, {ttl: cacheTTL, limit: cacheLimit});
