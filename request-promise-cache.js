@@ -83,7 +83,7 @@ function promisifyAndCachifyRequest (r, options) {
                 if (error || response.statusCode < 200 || response.statusCode > 299) {
                     reject(error || response);
                 } else {
-                    cacheKey && r._cache.set(cacheKey, ret, {ttl: cacheTTL, limit: cacheLimit});
+                    cacheKey && get && r._cache.set(cacheKey, ret, {ttl: cacheTTL, limit: cacheLimit});
                     resolve(ret);
                 }
                 delete r._loading[cacheKey];
